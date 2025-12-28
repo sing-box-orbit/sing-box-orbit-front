@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { ElProgress, ElTag } from 'element-plus'
+import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
+import VirtualTable from '@/components/VirtualTable.vue'
 
 const { t } = useI18n()
 
@@ -10,13 +13,64 @@ const stats = [
 	{ title: 'Total Sales', value: '24.67k', change: '+24.5%', isPositive: true },
 ]
 
-const tableData = Array.from({ length: 20 }, (_, i) => ({
+interface TableRow {
+	id: number
+	name: string
+	status: string
+	progress: number
+	date: string
+}
+
+const tableData: TableRow[] = Array.from({ length: 20 }, (_, i) => ({
 	id: i + 1,
 	name: `Project ${i + 1}`,
-	status: ['Active', 'Pending', 'Completed'][i % 3],
+	status: ['Active', 'Pending', 'Completed'][i % 3] as string,
 	progress: Math.floor(Math.random() * 100),
 	date: new Date(Date.now() - i * 86400000).toLocaleDateString(),
 }))
+
+const getStatusType = (status: string) => {
+	if (status === 'Active') return 'success'
+	if (status === 'Pending') return 'warning'
+	return 'info'
+}
+
+const columns = computed(() => [
+	{
+		key: 'id',
+		dataKey: 'id',
+		title: 'ID',
+		width: 80,
+	},
+	{
+		key: 'name',
+		dataKey: 'name',
+		title: 'Project Name',
+		width: 200,
+	},
+	{
+		key: 'status',
+		dataKey: 'status',
+		title: 'Status',
+		width: 120,
+		cellRenderer: ({ rowData }: { rowData: TableRow }) =>
+			h(ElTag, { type: getStatusType(rowData.status), size: 'small' }, () => rowData.status),
+	},
+	{
+		key: 'progress',
+		dataKey: 'progress',
+		title: 'Progress',
+		width: 200,
+		cellRenderer: ({ rowData }: { rowData: TableRow }) =>
+			h(ElProgress, { percentage: rowData.progress, strokeWidth: 6 }),
+	},
+	{
+		key: 'date',
+		dataKey: 'date',
+		title: 'Date',
+		width: 120,
+	},
+])
 </script>
 
 <template>
@@ -58,26 +112,7 @@ const tableData = Array.from({ length: 20 }, (_, i) => ({
 					<el-button type="primary" size="small">View All</el-button>
 				</div>
 			</template>
-			<el-table :data="tableData" style="width: 100%">
-				<el-table-column prop="id" label="ID" width="80" />
-				<el-table-column prop="name" label="Project Name" />
-				<el-table-column prop="status" label="Status">
-					<template #default="{ row }">
-						<el-tag
-							:type="row.status === 'Active' ? 'success' : row.status === 'Pending' ? 'warning' : 'info'"
-							size="small"
-						>
-							{{ row.status }}
-						</el-tag>
-					</template>
-				</el-table-column>
-				<el-table-column prop="progress" label="Progress">
-					<template #default="{ row }">
-						<el-progress :percentage="row.progress" :stroke-width="6" />
-					</template>
-				</el-table-column>
-				<el-table-column prop="date" label="Date" width="120" />
-			</el-table>
+			<VirtualTable :data="tableData" :columns="columns" row-key="id" :max-height="500" />
 		</el-card>
 
 		<el-card :class="$style.activityCard" shadow="never">

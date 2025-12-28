@@ -7,6 +7,8 @@ import { useSidebar } from '@/composables/useSidebar'
 import IconCircle from '~icons/tabler/circle'
 import IconCircleFilled from '~icons/tabler/circle-filled'
 import IconMenu2 from '~icons/tabler/menu-2'
+import IconServer from '~icons/tabler/server'
+import IconSettings from '~icons/tabler/settings'
 import IconSmartHome from '~icons/tabler/smart-home'
 import IconUsers from '~icons/tabler/users'
 import IconX from '~icons/tabler/x'
@@ -63,9 +65,17 @@ const {
 					<el-icon><IconSmartHome /></el-icon>
 					<template #title>{{ t('nav.dashboard') }}</template>
 				</el-menu-item>
-				<el-menu-item index="/users">
+				<el-menu-item index="/servers">
+					<el-icon><IconServer /></el-icon>
+					<template #title>{{ t('nav.servers') }}</template>
+				</el-menu-item>
+				<el-menu-item index="/clients">
 					<el-icon><IconUsers /></el-icon>
-					<template #title>{{ t('nav.users') }}</template>
+					<template #title>{{ t('nav.clients') }}</template>
+				</el-menu-item>
+				<el-menu-item index="/subscription-templates">
+					<el-icon><IconSettings /></el-icon>
+					<template #title>{{ t('nav.subscriptionTemplates') }}</template>
 				</el-menu-item>
 			</el-menu>
 		</el-aside>

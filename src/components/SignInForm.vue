@@ -2,7 +2,9 @@
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useFormValidation } from '@/composables/useFormValidation'
 import { signIn } from '@/libs/auth'
+import { SignInSchema } from '@/schemas'
 import IconLanguage from '~icons/tabler/language'
 
 const { t, locale } = useI18n()
@@ -24,9 +26,13 @@ const form = ref({
 	password: '',
 })
 
+const { errors, validate } = useFormValidation(SignInSchema, form)
+
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
 const handleSubmit = async () => {
+	if (!validate()) return
+
 	loading.value = true
 
 	try {
@@ -87,11 +93,14 @@ const handleSubmit = async () => {
 		</template>
 
 		<el-form @submit.prevent="handleSubmit" label-position="top">
-			<el-form-item :label="t('auth.emailOrUsername')">
+			<el-form-item
+				:label="t('auth.emailOrUsername')"
+				:error="errors.emailOrUsername ? t(errors.emailOrUsername) : ''"
+			>
 				<el-input v-model="form.emailOrUsername" :placeholder="t('auth.emailOrUsernamePlaceholder')" />
 			</el-form-item>
 
-			<el-form-item :label="t('auth.password')">
+			<el-form-item :label="t('auth.password')" :error="errors.password ? t(errors.password) : ''">
 				<el-input
 					v-model="form.password"
 					type="password"
