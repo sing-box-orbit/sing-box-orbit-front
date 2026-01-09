@@ -13,6 +13,7 @@ import {
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import VirtualTable from '@/components/VirtualTable.vue';
+import { useBreakpoints } from '@/composables/useBreakpoints';
 import { useFormValidation } from '@/composables/useFormValidation';
 import { graphql } from '@/graphql/graphql';
 import { CreateServerSchema, UpdateServerSchema } from '@/schemas';
@@ -23,6 +24,7 @@ import IconRefresh from '~icons/tabler/refresh';
 import IconTrash from '~icons/tabler/trash';
 
 const { t } = useI18n();
+const { isMobile, dialogWidth } = useBreakpoints();
 
 const ServersQuery = graphql(`
 	query Servers {
@@ -231,55 +233,75 @@ const formatDate = (dateString: string | null) => {
 	return new Date(dateString).toLocaleString();
 };
 
-const columns = computed(() => [
-	{
-		key: 'name',
-		dataKey: 'name',
-		title: t('servers.name'),
-		width: 150,
-	},
-	{
-		key: 'url',
-		dataKey: 'url',
-		title: t('servers.url'),
-		width: 200,
-	},
-	{
-		key: 'location',
-		dataKey: 'location',
-		title: t('servers.location'),
-		width: 120,
-		cellRenderer: ({ rowData }: { rowData: Server }) => h('span', rowData.location || '-'),
-	},
-	{
+const columns = computed(() => {
+	const cols: Array<{
+		key: string;
+		dataKey?: string;
+		title: string;
+		width: number;
+		fixed?: TableV2FixedDir;
+		cellRenderer?: ({ rowData }: { rowData: Server }) => ReturnType<typeof h>;
+	}> = [
+		{
+			key: 'name',
+			dataKey: 'name',
+			title: t('servers.name'),
+			width: isMobile.value ? 120 : 150,
+		},
+		{
+			key: 'url',
+			dataKey: 'url',
+			title: t('servers.url'),
+			width: isMobile.value ? 150 : 200,
+		},
+	];
+
+	// Hide location on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'location',
+			dataKey: 'location',
+			title: t('servers.location'),
+			width: 120,
+			cellRenderer: ({ rowData }) => h('span', rowData.location || '-'),
+		});
+	}
+
+	cols.push({
 		key: 'status',
 		dataKey: 'status',
 		title: t('servers.status'),
-		width: 100,
-		cellRenderer: ({ rowData }: { rowData: Server }) =>
+		width: isMobile.value ? 80 : 100,
+		cellRenderer: ({ rowData }) =>
 			h(ElTag, { type: getStatusType(rowData.status), size: 'small' }, () => rowData.status),
-	},
-	{
+	});
+
+	cols.push({
 		key: 'inbounds',
 		title: t('servers.inbounds'),
-		width: 100,
-		cellRenderer: ({ rowData }: { rowData: Server }) => h('span', String(rowData.inbounds.length)),
-	},
-	{
-		key: 'lastSyncAt',
-		dataKey: 'lastSyncAt',
-		title: t('servers.lastSync'),
-		width: 180,
-		cellRenderer: ({ rowData }: { rowData: Server }) => h('span', formatDate(rowData.lastSyncAt)),
-	},
-	{
+		width: isMobile.value ? 70 : 100,
+		cellRenderer: ({ rowData }) => h('span', String(rowData.inbounds.length)),
+	});
+
+	// Hide lastSyncAt on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'lastSyncAt',
+			dataKey: 'lastSyncAt',
+			title: t('servers.lastSync'),
+			width: 180,
+			cellRenderer: ({ rowData }) => h('span', formatDate(rowData.lastSyncAt)),
+		});
+	}
+
+	cols.push({
 		key: 'actions',
 		title: t('common.actions'),
-		width: 180,
+		width: isMobile.value ? 120 : 180,
 		fixed: TableV2FixedDir.RIGHT,
-		cellRenderer: ({ rowData }: { rowData: Server }) =>
+		cellRenderer: ({ rowData }) =>
 			h(ElButtonGroup, null, () => [
-				h(ElTooltip, { content: t('servers.sync') }, () =>
+				h(ElTooltip, { content: t('servers.sync'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -290,7 +312,7 @@ const columns = computed(() => [
 						() => h(ElIcon, null, () => h(IconRefresh)),
 					),
 				),
-				h(ElTooltip, { content: t('common.edit') }, () =>
+				h(ElTooltip, { content: t('common.edit'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -300,7 +322,7 @@ const columns = computed(() => [
 						() => h(ElIcon, null, () => h(IconEdit)),
 					),
 				),
-				h(ElTooltip, { content: t('common.delete') }, () =>
+				h(ElTooltip, { content: t('common.delete'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -312,8 +334,10 @@ const columns = computed(() => [
 					),
 				),
 			]),
-	},
-]);
+	});
+
+	return cols;
+});
 </script>
 
 <template>
@@ -336,7 +360,7 @@ const columns = computed(() => [
 		<el-dialog
 			v-model="dialogVisible"
 			:title="dialogMode === 'create' ? t('servers.add') : t('servers.edit')"
-			width="500"
+			:width="dialogWidth"
 		>
 			<el-form :model="form" label-position="top">
 				<el-form-item :label="t('servers.name')" required :error="errors.name ? t(errors.name) : ''">
@@ -379,7 +403,7 @@ const columns = computed(() => [
 
 <style module>
 .page {
-	max-width: 1400px;
+	width: 100%;
 }
 
 .header {
@@ -387,6 +411,8 @@ const columns = computed(() => [
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 24px;
+	gap: 12px;
+	flex-wrap: wrap;
 }
 
 .headerRight {
@@ -409,5 +435,23 @@ const columns = computed(() => [
 
 .card {
 	border-radius: 8px;
+}
+
+@media (max-width: 767px) {
+	.header {
+		margin-bottom: 16px;
+	}
+
+	.headerRight {
+		gap: 8px;
+	}
+
+	.total {
+		display: none;
+	}
+
+	.title {
+		font-size: 20px;
+	}
 }
 </style>

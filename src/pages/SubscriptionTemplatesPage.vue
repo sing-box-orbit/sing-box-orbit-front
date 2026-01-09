@@ -4,6 +4,7 @@ import { ElButton, ElButtonGroup, ElIcon, ElMessage, ElMessageBox, ElTooltip, Ta
 import { computed, h, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import VirtualTable from '@/components/VirtualTable.vue';
+import { useBreakpoints } from '@/composables/useBreakpoints';
 import { useFormValidation } from '@/composables/useFormValidation';
 import { graphql } from '@/graphql/graphql';
 import { CreateSubscriptionTemplateSchema } from '@/schemas';
@@ -12,6 +13,7 @@ import IconPlus from '~icons/tabler/plus';
 import IconTrash from '~icons/tabler/trash';
 
 const { t } = useI18n();
+const { isMobile, largeDialogWidth } = useBreakpoints();
 
 const SubscriptionTemplatesQuery = graphql(`
 	query SubscriptionTemplates {
@@ -220,49 +222,74 @@ const formatTraffic = (bytes: string) => {
 	return `${gb.toFixed(1)} GB`;
 };
 
-const columns = computed(() => [
-	{
-		key: 'name',
-		dataKey: 'name',
-		title: t('subscriptionTemplates.name'),
-		width: 150,
-	},
-	{
-		key: 'profileTitle',
-		dataKey: 'profileTitle',
-		title: t('subscriptionTemplates.profileTitle'),
-		width: 150,
-		cellRenderer: ({ rowData }: { rowData: Template }) => h('span', rowData.profileTitle || '-'),
-	},
-	{
-		key: 'updateInterval',
-		dataKey: 'updateInterval',
-		title: t('subscriptionTemplates.updateInterval'),
-		width: 120,
-		cellRenderer: ({ rowData }: { rowData: Template }) => h('span', `${rowData.updateInterval}h`),
-	},
-	{
+const columns = computed(() => {
+	const cols: Array<{
+		key: string;
+		dataKey?: string;
+		title: string;
+		width: number;
+		fixed?: TableV2FixedDir;
+		cellRenderer?: ({ rowData }: { rowData: Template }) => ReturnType<typeof h>;
+	}> = [
+		{
+			key: 'name',
+			dataKey: 'name',
+			title: t('subscriptionTemplates.name'),
+			width: isMobile.value ? 120 : 150,
+		},
+	];
+
+	// Hide profileTitle on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'profileTitle',
+			dataKey: 'profileTitle',
+			title: t('subscriptionTemplates.profileTitle'),
+			width: 150,
+			cellRenderer: ({ rowData }) => h('span', rowData.profileTitle || '-'),
+		});
+	}
+
+	// Hide updateInterval on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'updateInterval',
+			dataKey: 'updateInterval',
+			title: t('subscriptionTemplates.updateInterval'),
+			width: 120,
+			cellRenderer: ({ rowData }) => h('span', `${rowData.updateInterval}h`),
+		});
+	}
+
+	cols.push({
 		key: 'trafficTotal',
 		dataKey: 'trafficTotal',
 		title: t('subscriptionTemplates.trafficTotal'),
-		width: 120,
-		cellRenderer: ({ rowData }: { rowData: Template }) => h('span', formatTraffic(rowData.trafficTotal)),
-	},
-	{
+		width: isMobile.value ? 80 : 120,
+		cellRenderer: ({ rowData }) => h('span', formatTraffic(rowData.trafficTotal)),
+	});
+
+	cols.push({
 		key: 'clients',
 		title: t('nav.clients'),
-		width: 100,
-		cellRenderer: ({ rowData }: { rowData: Template }) =>
-			h('span', `${rowData.clients.length} ${t('subscriptionTemplates.clientsCount')}`),
-	},
-	{
+		width: isMobile.value ? 70 : 100,
+		cellRenderer: ({ rowData }) =>
+			h(
+				'span',
+				isMobile.value
+					? String(rowData.clients.length)
+					: `${rowData.clients.length} ${t('subscriptionTemplates.clientsCount')}`,
+			),
+	});
+
+	cols.push({
 		key: 'actions',
 		title: t('common.actions'),
-		width: 120,
+		width: isMobile.value ? 90 : 120,
 		fixed: TableV2FixedDir.RIGHT,
-		cellRenderer: ({ rowData }: { rowData: Template }) =>
+		cellRenderer: ({ rowData }) =>
 			h(ElButtonGroup, null, () => [
-				h(ElTooltip, { content: t('common.edit') }, () =>
+				h(ElTooltip, { content: t('common.edit'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -272,7 +299,7 @@ const columns = computed(() => [
 						() => h(ElIcon, null, () => h(IconEdit)),
 					),
 				),
-				h(ElTooltip, { content: t('common.delete') }, () =>
+				h(ElTooltip, { content: t('common.delete'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -284,8 +311,10 @@ const columns = computed(() => [
 					),
 				),
 			]),
-	},
-]);
+	});
+
+	return cols;
+});
 </script>
 
 <template>
@@ -308,7 +337,7 @@ const columns = computed(() => [
 		<el-dialog
 			v-model="dialogVisible"
 			:title="dialogMode === 'create' ? t('subscriptionTemplates.add') : t('subscriptionTemplates.edit')"
-			width="600"
+			:width="largeDialogWidth"
 		>
 			<el-form :model="form" label-position="top">
 				<el-form-item
@@ -327,7 +356,7 @@ const columns = computed(() => [
 				</el-form-item>
 
 				<el-row :gutter="20">
-					<el-col :span="12">
+					<el-col :xs="24" :sm="12">
 						<el-form-item
 							:label="t('subscriptionTemplates.updateInterval')"
 							:error="errors.updateInterval ? t(errors.updateInterval) : ''"
@@ -336,7 +365,7 @@ const columns = computed(() => [
 							<div :class="$style.hint">{{ t('subscriptionTemplates.updateIntervalHint') }}</div>
 						</el-form-item>
 					</el-col>
-					<el-col :span="12">
+					<el-col :xs="24" :sm="12">
 						<el-form-item :label="t('subscriptionTemplates.updateAlways')">
 							<el-switch v-model="form.updateAlways" />
 							<div :class="$style.hint">{{ t('subscriptionTemplates.updateAlwaysHint') }}</div>
@@ -403,7 +432,7 @@ const columns = computed(() => [
 
 <style module>
 .page {
-	max-width: 1200px;
+	width: 100%;
 }
 
 .header {
@@ -411,6 +440,8 @@ const columns = computed(() => [
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 24px;
+	gap: 12px;
+	flex-wrap: wrap;
 }
 
 .headerRight {
@@ -444,5 +475,23 @@ const columns = computed(() => [
 .unit {
 	margin-left: 8px;
 	color: var(--el-text-color-secondary);
+}
+
+@media (max-width: 767px) {
+	.header {
+		margin-bottom: 16px;
+	}
+
+	.headerRight {
+		gap: 8px;
+	}
+
+	.total {
+		display: none;
+	}
+
+	.title {
+		font-size: 20px;
+	}
 }
 </style>

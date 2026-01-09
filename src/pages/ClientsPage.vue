@@ -13,6 +13,7 @@ import {
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import VirtualTable from '@/components/VirtualTable.vue';
+import { useBreakpoints } from '@/composables/useBreakpoints';
 import { useFormValidation } from '@/composables/useFormValidation';
 import { graphql } from '@/graphql/graphql';
 import { CreateClientSchema, UpdateClientSchema } from '@/schemas';
@@ -24,6 +25,7 @@ import IconRefresh from '~icons/tabler/refresh';
 import IconTrash from '~icons/tabler/trash';
 
 const { t } = useI18n();
+const { isMobile, dialogWidth } = useBreakpoints();
 
 const ClientsQuery = graphql(`
 	query Clients {
@@ -345,62 +347,84 @@ const isServerAssigned = (serverId: string) => {
 	return selectedClient.value.servers.some((s) => s.server.id === serverId);
 };
 
-const columns = computed(() => [
-	{
-		key: 'username',
-		dataKey: 'username',
-		title: t('clients.username'),
-		width: 150,
-	},
-	{
-		key: 'email',
-		dataKey: 'email',
-		title: t('clients.email'),
-		width: 180,
-		cellRenderer: ({ rowData }: { rowData: Client }) => h('span', rowData.email || '-'),
-	},
-	{
+const columns = computed(() => {
+	const cols: Array<{
+		key: string;
+		dataKey?: string;
+		title: string;
+		width: number;
+		fixed?: TableV2FixedDir;
+		cellRenderer?: ({ rowData }: { rowData: Client }) => ReturnType<typeof h>;
+	}> = [
+		{
+			key: 'username',
+			dataKey: 'username',
+			title: t('clients.username'),
+			width: isMobile.value ? 120 : 150,
+		},
+	];
+
+	// Hide email on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'email',
+			dataKey: 'email',
+			title: t('clients.email'),
+			width: 180,
+			cellRenderer: ({ rowData }) => h('span', rowData.email || '-'),
+		});
+	}
+
+	cols.push({
 		key: 'enabled',
 		dataKey: 'enabled',
 		title: t('clients.status'),
-		width: 100,
-		cellRenderer: ({ rowData }: { rowData: Client }) =>
+		width: isMobile.value ? 80 : 100,
+		cellRenderer: ({ rowData }) =>
 			h(ElTag, { type: rowData.enabled ? 'success' : 'danger', size: 'small' }, () =>
 				rowData.enabled ? t('clients.active') : t('clients.disabled'),
 			),
-	},
-	{
+	});
+
+	cols.push({
 		key: 'servers',
 		title: t('clients.servers'),
-		width: 120,
-		cellRenderer: ({ rowData }: { rowData: Client }) =>
-			h(
-				ElButton,
-				{ size: 'small', link: true, type: 'primary', onClick: () => openServerDialog(rowData) },
-				() => `${rowData.servers.length} ${t('clients.serversCount')}`,
+		width: isMobile.value ? 80 : 120,
+		cellRenderer: ({ rowData }) =>
+			h(ElButton, { size: 'small', link: true, type: 'primary', onClick: () => openServerDialog(rowData) }, () =>
+				isMobile.value ? String(rowData.servers.length) : `${rowData.servers.length} ${t('clients.serversCount')}`,
 			),
-	},
-	{
-		key: 'subscriptionTemplate',
-		title: t('clients.subscriptionTemplate'),
-		width: 150,
-		cellRenderer: ({ rowData }: { rowData: Client }) => h('span', rowData.subscriptionTemplate?.name || '-'),
-	},
-	{
-		key: 'expiresAt',
-		dataKey: 'expiresAt',
-		title: t('clients.expiresAt'),
-		width: 180,
-		cellRenderer: ({ rowData }: { rowData: Client }) => h('span', formatDate(rowData.expiresAt)),
-	},
-	{
+	});
+
+	// Hide subscriptionTemplate on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'subscriptionTemplate',
+			title: t('clients.subscriptionTemplate'),
+			width: 150,
+			cellRenderer: ({ rowData }) => h('span', rowData.subscriptionTemplate?.name || '-'),
+		});
+	}
+
+	// Hide expiresAt on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'expiresAt',
+			dataKey: 'expiresAt',
+			title: t('clients.expiresAt'),
+			width: 180,
+			cellRenderer: ({ rowData }) => h('span', formatDate(rowData.expiresAt)),
+		});
+	}
+
+	cols.push({
 		key: 'actions',
 		title: t('common.actions'),
-		width: 220,
+		width: isMobile.value ? 140 : 220,
 		fixed: TableV2FixedDir.RIGHT,
-		cellRenderer: ({ rowData }: { rowData: Client }) =>
+		cellRenderer: ({ rowData }) =>
 			h(ElButtonGroup, null, () => [
-				h(ElTooltip, { content: t('clients.copyUrl') }, () =>
+				h(ElTooltip, { content: t('clients.copyUrl'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -411,7 +435,7 @@ const columns = computed(() => [
 						() => h(ElIcon, null, () => h(IconCopy)),
 					),
 				),
-				h(ElTooltip, { content: t('clients.regenerateToken') }, () =>
+				h(ElTooltip, { content: t('clients.regenerateToken'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -421,7 +445,7 @@ const columns = computed(() => [
 						() => h(ElIcon, null, () => h(IconRefresh)),
 					),
 				),
-				h(ElTooltip, { content: t('common.edit') }, () =>
+				h(ElTooltip, { content: t('common.edit'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -431,7 +455,7 @@ const columns = computed(() => [
 						() => h(ElIcon, null, () => h(IconEdit)),
 					),
 				),
-				h(ElTooltip, { content: t('common.delete') }, () =>
+				h(ElTooltip, { content: t('common.delete'), disabled: isMobile.value }, () =>
 					h(
 						ElButton,
 						{
@@ -443,8 +467,10 @@ const columns = computed(() => [
 					),
 				),
 			]),
-	},
-]);
+	});
+
+	return cols;
+});
 </script>
 
 <template>
@@ -467,7 +493,7 @@ const columns = computed(() => [
 		<el-dialog
 			v-model="dialogVisible"
 			:title="dialogMode === 'create' ? t('clients.add') : t('clients.edit')"
-			width="500"
+			:width="dialogWidth"
 		>
 			<el-form :model="form" label-position="top">
 				<el-form-item :label="t('clients.username')" required :error="errors.username ? t(errors.username) : ''">
@@ -513,7 +539,7 @@ const columns = computed(() => [
 			</template>
 		</el-dialog>
 
-		<el-dialog v-model="serverDialogVisible" :title="t('clients.manageServers')" width="500">
+		<el-dialog v-model="serverDialogVisible" :title="t('clients.manageServers')" :width="dialogWidth">
 			<div v-if="selectedClient" :class="$style.serverList">
 				<div v-for="server in servers" :key="server.id" :class="$style.serverItem">
 					<div :class="$style.serverInfo">
@@ -535,7 +561,7 @@ const columns = computed(() => [
 
 <style module>
 .page {
-	max-width: 1400px;
+	width: 100%;
 }
 
 .header {
@@ -543,6 +569,8 @@ const columns = computed(() => [
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 24px;
+	gap: 12px;
+	flex-wrap: wrap;
 }
 
 .headerRight {
@@ -586,5 +614,32 @@ const columns = computed(() => [
 	display: flex;
 	align-items: center;
 	gap: 8px;
+}
+
+@media (max-width: 767px) {
+	.header {
+		margin-bottom: 16px;
+	}
+
+	.headerRight {
+		gap: 8px;
+	}
+
+	.total {
+		display: none;
+	}
+
+	.title {
+		font-size: 20px;
+	}
+
+	.serverItem {
+		padding: 10px;
+	}
+
+	.serverInfo {
+		gap: 6px;
+		font-size: 14px;
+	}
 }
 </style>

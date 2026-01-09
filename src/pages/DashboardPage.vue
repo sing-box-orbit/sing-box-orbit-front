@@ -3,8 +3,10 @@ import { ElProgress, ElTag } from 'element-plus';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 import VirtualTable from '@/components/VirtualTable.vue';
+import { useBreakpoints } from '@/composables/useBreakpoints';
 
 const { t } = useI18n();
+const { isMobile } = useBreakpoints();
 
 const stats = [
 	{ title: 'Orders', value: '124k', change: '+12.6%', isPositive: true },
@@ -35,42 +37,56 @@ const getStatusType = (status: string) => {
 	return 'info';
 };
 
-const columns = computed(() => [
-	{
-		key: 'id',
-		dataKey: 'id',
-		title: 'ID',
-		width: 80,
-	},
-	{
-		key: 'name',
-		dataKey: 'name',
-		title: 'Project Name',
-		width: 200,
-	},
-	{
-		key: 'status',
-		dataKey: 'status',
-		title: 'Status',
-		width: 120,
-		cellRenderer: ({ rowData }: { rowData: TableRow }) =>
-			h(ElTag, { type: getStatusType(rowData.status), size: 'small' }, () => rowData.status),
-	},
-	{
-		key: 'progress',
-		dataKey: 'progress',
-		title: 'Progress',
-		width: 200,
-		cellRenderer: ({ rowData }: { rowData: TableRow }) =>
-			h(ElProgress, { percentage: rowData.progress, strokeWidth: 6 }),
-	},
-	{
+const columns = computed(() => {
+	const cols: Array<{
+		key: string;
+		dataKey?: string;
+		title: string;
+		width: number;
+		cellRenderer?: ({ rowData }: { rowData: TableRow }) => ReturnType<typeof h>;
+	}> = [
+		{
+			key: 'id',
+			dataKey: 'id',
+			title: 'ID',
+			width: isMobile.value ? 50 : 80,
+		},
+		{
+			key: 'name',
+			dataKey: 'name',
+			title: 'Project Name',
+			width: isMobile.value ? 120 : 200,
+		},
+		{
+			key: 'status',
+			dataKey: 'status',
+			title: 'Status',
+			width: isMobile.value ? 80 : 120,
+			cellRenderer: ({ rowData }) =>
+				h(ElTag, { type: getStatusType(rowData.status), size: 'small' }, () => rowData.status),
+		},
+	];
+
+	// Hide progress on mobile
+	if (!isMobile.value) {
+		cols.push({
+			key: 'progress',
+			dataKey: 'progress',
+			title: 'Progress',
+			width: 200,
+			cellRenderer: ({ rowData }) => h(ElProgress, { percentage: rowData.progress, strokeWidth: 6 }),
+		});
+	}
+
+	cols.push({
 		key: 'date',
 		dataKey: 'date',
 		title: 'Date',
-		width: 120,
-	},
-]);
+		width: isMobile.value ? 90 : 120,
+	});
+
+	return cols;
+});
 </script>
 
 <template>
@@ -151,7 +167,7 @@ const columns = computed(() => [
 
 <style module>
 .page {
-	max-width: 1400px;
+	width: 100%;
 }
 
 .title {
@@ -166,6 +182,19 @@ const columns = computed(() => [
 	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: 16px;
 	margin-bottom: 24px;
+}
+
+@media (max-width: 767px) {
+	.title {
+		font-size: 20px;
+		margin-bottom: 16px;
+	}
+
+	.statsGrid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px;
+		margin-bottom: 16px;
+	}
 }
 
 .statCard {
@@ -242,5 +271,41 @@ const columns = computed(() => [
 .activityCard p {
 	margin: 0;
 	color: var(--el-text-color-secondary);
+}
+
+@media (max-width: 767px) {
+	.statTitle {
+		font-size: 12px;
+	}
+
+	.statValue {
+		font-size: 20px;
+	}
+
+	.statChange {
+		font-size: 11px;
+	}
+
+	.chartCard {
+		margin-bottom: 16px;
+	}
+
+	.chartPlaceholder {
+		height: 150px;
+		padding: 12px;
+	}
+
+	.chartBar {
+		width: 28px;
+	}
+
+	.tableCard {
+		margin-bottom: 16px;
+	}
+
+	.cardHeader {
+		flex-wrap: wrap;
+		gap: 8px;
+	}
 }
 </style>

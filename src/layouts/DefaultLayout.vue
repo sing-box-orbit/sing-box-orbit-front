@@ -237,24 +237,41 @@ const {
 .menu :global(.el-menu-item) {
 	border-radius: 8px;
 	margin-bottom: 4px;
-	height: 44px;
+}
+
+.menu :global(.el-menu-item .el-icon) {
+	width: 24px;
+	height: 24px;
+	font-size: 24px;
+}
+
+.menu :global(.el-menu-item .el-icon svg) {
+	width: 24px;
+	height: 24px;
+}
+
+.menu :global(.el-menu-item span) {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .menu :global(.el-menu-item.is-active) {
 	background: var(--el-color-primary-light-9);
 }
 
-.menu :global(.el-menu--collapse) {
+.menu:global(.el-menu--collapse) {
 	width: 100%;
-	padding: 12px 0;
+	padding: 56px 12px 12px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 }
 
-.menu :global(.el-menu--collapse .el-menu-item) {
-	width: 44px !important;
-	min-width: 44px !important;
+.menu:global(.el-menu--collapse) :global(.el-menu-item) {
+	width: 56px !important;
+	height: 56px !important;
+	min-width: 56px !important;
 	padding: 0 !important;
 	margin: 0 0 4px 0 !important;
 	display: flex;
@@ -262,7 +279,7 @@ const {
 	align-items: center;
 }
 
-.menu :global(.el-menu--collapse .el-menu-item .el-icon) {
+.menu:global(.el-menu--collapse) :global(.el-menu-item .el-icon) {
 	margin-right: 0;
 }
 
@@ -333,6 +350,9 @@ const {
 }
 
 .el-menu--collapse .el-menu-item {
+	width: 56px !important;
+	height: 56px !important;
+	min-width: 56px !important;
 	padding: 0 !important;
 	justify-content: center !important;
 }
@@ -340,7 +360,14 @@ const {
 .el-menu--collapse .el-menu-item .el-icon {
 	margin-right: 0 !important;
 	width: 24px;
+	height: 24px;
+	font-size: 24px;
 	text-align: center;
+}
+
+.el-menu--collapse .el-menu-item .el-icon svg {
+	width: 24px;
+	height: 24px;
 }
 
 .el-menu--collapse .el-tooltip__trigger {
