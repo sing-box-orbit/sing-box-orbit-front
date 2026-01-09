@@ -1,62 +1,62 @@
-import { useLocalStorage, useMediaQuery } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { useLocalStorage, useMediaQuery } from '@vueuse/core';
+import { computed, ref, watch } from 'vue';
 
-const isCollapsed = useLocalStorage('sidebar-collapsed', false)
-const isHovered = ref(false)
-const isMobileMenuOpen = ref(false)
+const isCollapsed = useLocalStorage('sidebar-collapsed', false);
+const isHovered = ref(false);
+const isMobileMenuOpen = ref(false);
 
-const isMobile = useMediaQuery('(max-width: 991px)')
+const isMobile = useMediaQuery('(max-width: 991px)');
 
 export function useSidebar() {
 	const toggle = () => {
-		isCollapsed.value = !isCollapsed.value
-	}
+		isCollapsed.value = !isCollapsed.value;
+	};
 
 	const collapse = () => {
-		isCollapsed.value = true
-	}
+		isCollapsed.value = true;
+	};
 
 	const expand = () => {
-		isCollapsed.value = false
-	}
+		isCollapsed.value = false;
+	};
 
 	const setHovered = (value: boolean) => {
-		isHovered.value = value
-	}
+		isHovered.value = value;
+	};
 
 	const openMobileMenu = () => {
-		isMobileMenuOpen.value = true
-	}
+		isMobileMenuOpen.value = true;
+	};
 
 	const closeMobileMenu = () => {
-		isMobileMenuOpen.value = false
-	}
+		isMobileMenuOpen.value = false;
+	};
 
 	const toggleMobileMenu = () => {
-		isMobileMenuOpen.value = !isMobileMenuOpen.value
-	}
+		isMobileMenuOpen.value = !isMobileMenuOpen.value;
+	};
 
 	watch(isMobile, (mobile) => {
 		if (!mobile) {
-			isMobileMenuOpen.value = false
+			isMobileMenuOpen.value = false;
 		}
-	})
+	});
 
 	const isExpanded = computed(() => {
 		if (isMobile.value) {
-			return true
+			return true;
 		}
-		return !isCollapsed.value || isHovered.value
-	})
+		return !isCollapsed.value || isHovered.value;
+	});
 
-	const sidebarWidth = computed(() => (isExpanded.value ? 'var(--sidebar-width)' : 'var(--sidebar-collapsed-width)'))
+	const sidebarWidth = computed(() => (isExpanded.value ? 'var(--sidebar-width)' : 'var(--sidebar-collapsed-width)'));
 
 	const contentMargin = computed(() => {
 		if (isMobile.value) {
-			return '0px'
+			return '0px';
 		}
-		return isCollapsed.value ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)'
-	})
+		return isCollapsed.value ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)';
+	});
 
 	return {
 		isCollapsed,
@@ -73,5 +73,5 @@ export function useSidebar() {
 		toggleMobileMenu,
 		sidebarWidth,
 		contentMargin,
-	}
+	};
 }

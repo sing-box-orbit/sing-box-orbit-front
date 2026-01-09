@@ -1,20 +1,29 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from '@urql/vue'
-import { ElButton, ElButtonGroup, ElIcon, ElMessage, ElMessageBox, ElTag, ElTooltip, TableV2FixedDir } from 'element-plus'
-import { computed, h, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import VirtualTable from '@/components/VirtualTable.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { graphql } from '@/graphql/graphql'
-import { CreateClientSchema, UpdateClientSchema } from '@/schemas'
-import IconCopy from '~icons/tabler/copy'
-import IconEdit from '~icons/tabler/edit'
-import IconLink from '~icons/tabler/link'
-import IconPlus from '~icons/tabler/plus'
-import IconRefresh from '~icons/tabler/refresh'
-import IconTrash from '~icons/tabler/trash'
+import { useMutation, useQuery } from '@urql/vue';
+import {
+	ElButton,
+	ElButtonGroup,
+	ElIcon,
+	ElMessage,
+	ElMessageBox,
+	ElTag,
+	ElTooltip,
+	TableV2FixedDir,
+} from 'element-plus';
+import { computed, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import VirtualTable from '@/components/VirtualTable.vue';
+import { useFormValidation } from '@/composables/useFormValidation';
+import { graphql } from '@/graphql/graphql';
+import { CreateClientSchema, UpdateClientSchema } from '@/schemas';
+import IconCopy from '~icons/tabler/copy';
+import IconEdit from '~icons/tabler/edit';
+import IconLink from '~icons/tabler/link';
+import IconPlus from '~icons/tabler/plus';
+import IconRefresh from '~icons/tabler/refresh';
+import IconTrash from '~icons/tabler/trash';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 const ClientsQuery = graphql(`
 	query Clients {
@@ -49,7 +58,7 @@ const ClientsQuery = graphql(`
 			totalCount
 		}
 	}
-`)
+`);
 
 const ServersQuery = graphql(`
 	query ServersForClients {
@@ -63,7 +72,7 @@ const ServersQuery = graphql(`
 			}
 		}
 	}
-`)
+`);
 
 const SubscriptionTemplatesQuery = graphql(`
 	query SubscriptionTemplatesForClients {
@@ -76,7 +85,7 @@ const SubscriptionTemplatesQuery = graphql(`
 			}
 		}
 	}
-`)
+`);
 
 const CreateClientMutation = graphql(`
 	mutation CreateClient($input: CreateClientInput!) {
@@ -89,7 +98,7 @@ const CreateClientMutation = graphql(`
 			}
 		}
 	}
-`)
+`);
 
 const UpdateClientMutation = graphql(`
 	mutation UpdateClient($id: ID!, $input: UpdateClientInput!) {
@@ -102,13 +111,13 @@ const UpdateClientMutation = graphql(`
 			}
 		}
 	}
-`)
+`);
 
 const DeleteClientMutation = graphql(`
 	mutation DeleteClient($id: ID!) {
 		deleteClient(id: $id)
 	}
-`)
+`);
 
 const AddClientToServerMutation = graphql(`
 	mutation AddClientToServer($clientId: ID!, $serverId: ID!) {
@@ -116,7 +125,7 @@ const AddClientToServerMutation = graphql(`
 			id
 		}
 	}
-`)
+`);
 
 const RemoveClientFromServerMutation = graphql(`
 	mutation RemoveClientFromServer($clientId: ID!, $serverId: ID!) {
@@ -124,7 +133,7 @@ const RemoveClientFromServerMutation = graphql(`
 			id
 		}
 	}
-`)
+`);
 
 const RegenerateTokenMutation = graphql(`
 	mutation RegenerateSubscriptionToken($clientId: ID!) {
@@ -135,32 +144,34 @@ const RegenerateTokenMutation = graphql(`
 			}
 		}
 	}
-`)
+`);
 
-const { data, fetching, executeQuery } = useQuery({ query: ClientsQuery })
-const { data: serversData } = useQuery({ query: ServersQuery })
-const { data: templatesData } = useQuery({ query: SubscriptionTemplatesQuery })
-const createClientMutation = useMutation(CreateClientMutation)
-const updateClientMutation = useMutation(UpdateClientMutation)
-const deleteClientMutation = useMutation(DeleteClientMutation)
-const addClientToServerMutation = useMutation(AddClientToServerMutation)
-const removeClientFromServerMutation = useMutation(RemoveClientFromServerMutation)
-const regenerateTokenMutation = useMutation(RegenerateTokenMutation)
+const { data, fetching, executeQuery } = useQuery({ query: ClientsQuery });
+const { data: serversData } = useQuery({ query: ServersQuery });
+const { data: templatesData } = useQuery({ query: SubscriptionTemplatesQuery });
+const createClientMutation = useMutation(CreateClientMutation);
+const updateClientMutation = useMutation(UpdateClientMutation);
+const deleteClientMutation = useMutation(DeleteClientMutation);
+const addClientToServerMutation = useMutation(AddClientToServerMutation);
+const removeClientFromServerMutation = useMutation(RemoveClientFromServerMutation);
+const regenerateTokenMutation = useMutation(RegenerateTokenMutation);
 
-type Client = NonNullable<typeof data.value>['clients']['edges'][0]['node']
+type Client = NonNullable<typeof data.value>['clients']['edges'][0]['node'];
 
-const clients = computed(() => data.value?.clients?.edges.map((e) => e.node) ?? [])
-const totalCount = computed(() => data.value?.clients?.totalCount ?? 0)
-const servers = computed(() => serversData.value?.servers?.edges.map((e) => e.node) ?? [])
-const subscriptionTemplates = computed(() => templatesData.value?.subscriptionTemplates?.edges.map((e) => e.node) ?? [])
+const clients = computed(() => data.value?.clients?.edges.map((e) => e.node) ?? []);
+const totalCount = computed(() => data.value?.clients?.totalCount ?? 0);
+const servers = computed(() => serversData.value?.servers?.edges.map((e) => e.node) ?? []);
+const subscriptionTemplates = computed(
+	() => templatesData.value?.subscriptionTemplates?.edges.map((e) => e.node) ?? [],
+);
 
-const dialogVisible = ref(false)
-const dialogMode = ref<'create' | 'edit'>('create')
-const editingClientId = ref<string | null>(null)
-const formLoading = ref(false)
+const dialogVisible = ref(false);
+const dialogMode = ref<'create' | 'edit'>('create');
+const editingClientId = ref<string | null>(null);
+const formLoading = ref(false);
 
-const serverDialogVisible = ref(false)
-const selectedClient = ref<Client | null>(null)
+const serverDialogVisible = ref(false);
+const selectedClient = ref<Client | null>(null);
 
 const form = ref({
 	username: '',
@@ -168,45 +179,45 @@ const form = ref({
 	expiresAt: '',
 	serverIds: [] as string[],
 	subscriptionTemplateId: null as string | null,
-})
+});
 
-const currentSchema = computed(() => (dialogMode.value === 'create' ? CreateClientSchema : UpdateClientSchema))
-const { errors, validate, clearErrors } = useFormValidation(currentSchema, form)
+const currentSchema = computed(() => (dialogMode.value === 'create' ? CreateClientSchema : UpdateClientSchema));
+const { errors, validate, clearErrors } = useFormValidation(currentSchema, form);
 
 const resetForm = () => {
-	form.value = { username: '', email: '', expiresAt: '', serverIds: [], subscriptionTemplateId: null }
-	editingClientId.value = null
-	clearErrors()
-}
+	form.value = { username: '', email: '', expiresAt: '', serverIds: [], subscriptionTemplateId: null };
+	editingClientId.value = null;
+	clearErrors();
+};
 
 const openCreateDialog = () => {
-	dialogMode.value = 'create'
-	resetForm()
-	dialogVisible.value = true
-}
+	dialogMode.value = 'create';
+	resetForm();
+	dialogVisible.value = true;
+};
 
 const openEditDialog = (client: Client) => {
-	dialogMode.value = 'edit'
-	editingClientId.value = client.id
+	dialogMode.value = 'edit';
+	editingClientId.value = client.id;
 	form.value = {
 		username: client.username,
 		email: client.email ?? '',
 		expiresAt: client.expiresAt ?? '',
 		serverIds: client.servers.map((s) => s.server.id),
 		subscriptionTemplateId: client.subscriptionTemplate?.id ?? null,
-	}
-	dialogVisible.value = true
-}
+	};
+	dialogVisible.value = true;
+};
 
 const openServerDialog = (client: Client) => {
-	selectedClient.value = client
-	serverDialogVisible.value = true
-}
+	selectedClient.value = client;
+	serverDialogVisible.value = true;
+};
 
 const handleSubmit = async () => {
-	if (!validate()) return
+	if (!validate()) return;
 
-	formLoading.value = true
+	formLoading.value = true;
 	try {
 		if (dialogMode.value === 'create') {
 			const result = await createClientMutation.executeMutation({
@@ -217,18 +228,18 @@ const handleSubmit = async () => {
 					serverIds: form.value.serverIds,
 					subscriptionTemplateId: form.value.subscriptionTemplateId,
 				},
-			})
+			});
 			if (result.error) {
-				ElMessage.error(result.error.message)
-				return
+				ElMessage.error(result.error.message);
+				return;
 			}
-			ElMessage.success(t('clients.createSuccess'))
-			dialogVisible.value = false
-			executeQuery({ requestPolicy: 'network-only' })
-			return
+			ElMessage.success(t('clients.createSuccess'));
+			dialogVisible.value = false;
+			executeQuery({ requestPolicy: 'network-only' });
+			return;
 		}
 
-		if (!editingClientId.value) return
+		if (!editingClientId.value) return;
 
 		const result = await updateClientMutation.executeMutation({
 			id: editingClientId.value,
@@ -238,18 +249,18 @@ const handleSubmit = async () => {
 				expiresAt: form.value.expiresAt || null,
 				subscriptionTemplateId: form.value.subscriptionTemplateId,
 			},
-		})
+		});
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('clients.updateSuccess'))
-		dialogVisible.value = false
-		executeQuery({ requestPolicy: 'network-only' })
+		ElMessage.success(t('clients.updateSuccess'));
+		dialogVisible.value = false;
+		executeQuery({ requestPolicy: 'network-only' });
 	} finally {
-		formLoading.value = false
+		formLoading.value = false;
 	}
-}
+};
 
 const handleDelete = async (client: Client) => {
 	try {
@@ -257,47 +268,47 @@ const handleDelete = async (client: Client) => {
 			confirmButtonText: t('common.confirm'),
 			cancelButtonText: t('common.cancel'),
 			type: 'warning',
-		})
-		const result = await deleteClientMutation.executeMutation({ id: client.id })
+		});
+		const result = await deleteClientMutation.executeMutation({ id: client.id });
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('clients.deleteSuccess'))
-		executeQuery({ requestPolicy: 'network-only' })
+		ElMessage.success(t('clients.deleteSuccess'));
+		executeQuery({ requestPolicy: 'network-only' });
 	} catch {
 		// cancelled
 	}
-}
+};
 
 const handleToggleServer = async (serverId: string) => {
-	if (!selectedClient.value) return
+	if (!selectedClient.value) return;
 
-	const isAssigned = selectedClient.value.servers.some((s) => s.server.id === serverId)
+	const isAssigned = selectedClient.value.servers.some((s) => s.server.id === serverId);
 
 	if (isAssigned) {
 		const result = await removeClientFromServerMutation.executeMutation({
 			clientId: selectedClient.value.id,
 			serverId,
-		})
+		});
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('clients.serverRemoved'))
+		ElMessage.success(t('clients.serverRemoved'));
 	} else {
 		const result = await addClientToServerMutation.executeMutation({
 			clientId: selectedClient.value.id,
 			serverId,
-		})
+		});
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('clients.serverAdded'))
+		ElMessage.success(t('clients.serverAdded'));
 	}
-	executeQuery({ requestPolicy: 'network-only' })
-}
+	executeQuery({ requestPolicy: 'network-only' });
+};
 
 const handleRegenerateToken = async (client: Client) => {
 	try {
@@ -305,34 +316,34 @@ const handleRegenerateToken = async (client: Client) => {
 			confirmButtonText: t('common.confirm'),
 			cancelButtonText: t('common.cancel'),
 			type: 'warning',
-		})
-		const result = await regenerateTokenMutation.executeMutation({ clientId: client.id })
+		});
+		const result = await regenerateTokenMutation.executeMutation({ clientId: client.id });
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('clients.tokenRegenerated'))
-		executeQuery({ requestPolicy: 'network-only' })
+		ElMessage.success(t('clients.tokenRegenerated'));
+		executeQuery({ requestPolicy: 'network-only' });
 	} catch {
 		// cancelled
 	}
-}
+};
 
 const copySubscriptionUrl = (client: Client) => {
-	if (!client.subscription) return
-	navigator.clipboard.writeText(client.subscription.url)
-	ElMessage.success(t('clients.urlCopied'))
-}
+	if (!client.subscription) return;
+	navigator.clipboard.writeText(client.subscription.url);
+	ElMessage.success(t('clients.urlCopied'));
+};
 
 const formatDate = (dateString: string | null) => {
-	if (!dateString) return '-'
-	return new Date(dateString).toLocaleString()
-}
+	if (!dateString) return '-';
+	return new Date(dateString).toLocaleString();
+};
 
 const isServerAssigned = (serverId: string) => {
-	if (!selectedClient.value) return false
-	return selectedClient.value.servers.some((s) => s.server.id === serverId)
-}
+	if (!selectedClient.value) return false;
+	return selectedClient.value.servers.some((s) => s.server.id === serverId);
+};
 
 const columns = computed(() => [
 	{
@@ -433,7 +444,7 @@ const columns = computed(() => [
 				),
 			]),
 	},
-])
+]);
 </script>
 
 <template>

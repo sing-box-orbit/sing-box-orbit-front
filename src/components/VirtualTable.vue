@@ -1,17 +1,17 @@
 <script setup lang="ts" generic="T">
-import type { Column } from 'element-plus'
-import { ElAutoResizer, ElTableV2 } from 'element-plus'
-import { computed } from 'vue'
+import type { Column } from 'element-plus';
+import { ElAutoResizer, ElTableV2 } from 'element-plus';
+import { computed } from 'vue';
 
 interface Props {
-	data: T[]
-	columns: Column<T>[]
-	loading?: boolean
-	rowHeight?: number
-	headerHeight?: number
-	minHeight?: number
-	maxHeight?: number
-	rowKey?: string
+	data: T[];
+	columns: Column<T>[];
+	loading?: boolean;
+	rowHeight?: number;
+	headerHeight?: number;
+	minHeight?: number;
+	maxHeight?: number;
+	rowKey?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,12 +21,12 @@ const props = withDefaults(defineProps<Props>(), {
 	minHeight: 300,
 	maxHeight: 600,
 	rowKey: 'id',
-})
+});
 
 const tableHeight = computed(() => {
-	const contentHeight = props.data.length * props.rowHeight + props.headerHeight
-	return Math.min(Math.max(contentHeight, props.minHeight), props.maxHeight)
-})
+	const contentHeight = props.data.length * props.rowHeight + props.headerHeight;
+	return Math.min(Math.max(contentHeight, props.minHeight), props.maxHeight);
+});
 </script>
 
 <template>

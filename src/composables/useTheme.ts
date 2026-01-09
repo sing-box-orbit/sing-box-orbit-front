@@ -1,7 +1,7 @@
-import { useColorMode } from '@vueuse/core'
-import { computed } from 'vue'
+import { useColorMode } from '@vueuse/core';
+import { computed } from 'vue';
 
-export type ThemeMode = 'light' | 'dark' | 'auto'
+export type ThemeMode = 'light' | 'dark' | 'auto';
 
 export function useTheme() {
 	const mode = useColorMode({
@@ -13,22 +13,22 @@ export function useTheme() {
 			auto: '',
 		},
 		storageKey: 'theme-mode',
-	})
+	});
 
 	const isDark = computed(() => {
 		if (mode.value === 'auto') {
-			return window.matchMedia('(prefers-color-scheme: dark)').matches
+			return window.matchMedia('(prefers-color-scheme: dark)').matches;
 		}
-		return mode.value === 'dark'
-	})
+		return mode.value === 'dark';
+	});
 
 	const setTheme = (theme: ThemeMode) => {
-		mode.value = theme
-	}
+		mode.value = theme;
+	};
 
 	return {
 		mode,
 		isDark,
 		setTheme,
-	}
+	};
 }

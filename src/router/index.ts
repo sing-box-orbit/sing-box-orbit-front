@@ -1,8 +1,8 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import ClientsPage from '@/pages/ClientsPage.vue'
-import DashboardPage from '@/pages/DashboardPage.vue'
-import ServersPage from '@/pages/ServersPage.vue'
-import SubscriptionTemplatesPage from '@/pages/SubscriptionTemplatesPage.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import ClientsPage from '@/pages/ClientsPage.vue';
+import DashboardPage from '@/pages/DashboardPage.vue';
+import ServersPage from '@/pages/ServersPage.vue';
+import SubscriptionTemplatesPage from '@/pages/SubscriptionTemplatesPage.vue';
 
 const routes = [
 	{
@@ -25,9 +25,9 @@ const routes = [
 		name: 'subscription-templates',
 		component: SubscriptionTemplatesPage,
 	},
-]
+];
 
 export const router = createRouter({
 	history: createWebHistory(),
 	routes,
-})
+});

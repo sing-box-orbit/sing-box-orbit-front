@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import HeaderLanguage from '@/components/layout/HeaderLanguage.vue'
-import HeaderTheme from '@/components/layout/HeaderTheme.vue'
-import HeaderUserMenu from '@/components/layout/HeaderUserMenu.vue'
-import { useSidebar } from '@/composables/useSidebar'
-import IconCircle from '~icons/tabler/circle'
-import IconCircleFilled from '~icons/tabler/circle-filled'
-import IconMenu2 from '~icons/tabler/menu-2'
-import IconServer from '~icons/tabler/server'
-import IconSettings from '~icons/tabler/settings'
-import IconSmartHome from '~icons/tabler/smart-home'
-import IconUsers from '~icons/tabler/users'
-import IconX from '~icons/tabler/x'
+import { useI18n } from 'vue-i18n';
+import HeaderLanguage from '@/components/layout/HeaderLanguage.vue';
+import HeaderTheme from '@/components/layout/HeaderTheme.vue';
+import HeaderUserMenu from '@/components/layout/HeaderUserMenu.vue';
+import { useSidebar } from '@/composables/useSidebar';
+import IconCircle from '~icons/tabler/circle';
+import IconCircleFilled from '~icons/tabler/circle-filled';
+import IconMenu2 from '~icons/tabler/menu-2';
+import IconServer from '~icons/tabler/server';
+import IconSettings from '~icons/tabler/settings';
+import IconSmartHome from '~icons/tabler/smart-home';
+import IconUsers from '~icons/tabler/users';
+import IconX from '~icons/tabler/x';
 
-const { t } = useI18n()
+const { t } = useI18n();
 const {
 	isCollapsed,
 	isExpanded,
@@ -25,7 +25,7 @@ const {
 	closeMobileMenu,
 	sidebarWidth,
 	contentMargin,
-} = useSidebar()
+} = useSidebar();
 </script>
 
 <template>

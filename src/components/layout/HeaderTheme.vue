@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { type ThemeMode, useTheme } from '@/composables/useTheme'
-import IconDeviceDesktop from '~icons/tabler/device-desktop'
-import IconMoon from '~icons/tabler/moon'
-import IconSun from '~icons/tabler/sun'
+import { type ThemeMode, useTheme } from '@/composables/useTheme';
+import IconDeviceDesktop from '~icons/tabler/device-desktop';
+import IconMoon from '~icons/tabler/moon';
+import IconSun from '~icons/tabler/sun';
 
-const { mode, isDark, setTheme } = useTheme()
+const { mode, isDark, setTheme } = useTheme();
 
 const themes: { value: ThemeMode; label: string; icon: typeof IconSun }[] = [
 	{ value: 'light', label: 'Light', icon: IconSun },
 	{ value: 'dark', label: 'Dark', icon: IconMoon },
 	{ value: 'auto', label: 'System', icon: IconDeviceDesktop },
-]
+];
 </script>
 
 <template>

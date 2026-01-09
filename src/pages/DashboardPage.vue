@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { ElProgress, ElTag } from 'element-plus'
-import { computed, h } from 'vue'
-import { useI18n } from 'vue-i18n'
-import VirtualTable from '@/components/VirtualTable.vue'
+import { ElProgress, ElTag } from 'element-plus';
+import { computed, h } from 'vue';
+import { useI18n } from 'vue-i18n';
+import VirtualTable from '@/components/VirtualTable.vue';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 const stats = [
 	{ title: 'Orders', value: '124k', change: '+12.6%', isPositive: true },
 	{ title: 'Sales', value: '175k', change: '-16.2%', isPositive: false },
 	{ title: 'Total Profit', value: '1.28k', change: '-12.2%', isPositive: false },
 	{ title: 'Total Sales', value: '24.67k', change: '+24.5%', isPositive: true },
-]
+];
 
 interface TableRow {
-	id: number
-	name: string
-	status: string
-	progress: number
-	date: string
+	id: number;
+	name: string;
+	status: string;
+	progress: number;
+	date: string;
 }
 
 const tableData: TableRow[] = Array.from({ length: 20 }, (_, i) => ({
@@ -27,13 +27,13 @@ const tableData: TableRow[] = Array.from({ length: 20 }, (_, i) => ({
 	status: ['Active', 'Pending', 'Completed'][i % 3] as string,
 	progress: Math.floor(Math.random() * 100),
 	date: new Date(Date.now() - i * 86400000).toLocaleDateString(),
-}))
+}));
 
 const getStatusType = (status: string) => {
-	if (status === 'Active') return 'success'
-	if (status === 'Pending') return 'warning'
-	return 'info'
-}
+	if (status === 'Active') return 'success';
+	if (status === 'Pending') return 'warning';
+	return 'info';
+};
 
 const columns = computed(() => [
 	{
@@ -70,7 +70,7 @@ const columns = computed(() => [
 		title: 'Date',
 		width: 120,
 	},
-])
+]);
 </script>
 
 <template>

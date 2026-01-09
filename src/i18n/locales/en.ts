@@ -132,4 +132,4 @@ export default {
 		routingHint: 'Custom routing rules in base64 format',
 		clientsCount: 'clients',
 	},
-}
+};

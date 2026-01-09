@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from '@urql/vue'
-import { ElButton, ElButtonGroup, ElIcon, ElMessage, ElMessageBox, ElTooltip, TableV2FixedDir } from 'element-plus'
-import { computed, h, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import VirtualTable from '@/components/VirtualTable.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { graphql } from '@/graphql/graphql'
-import { CreateSubscriptionTemplateSchema } from '@/schemas'
-import IconEdit from '~icons/tabler/edit'
-import IconPlus from '~icons/tabler/plus'
-import IconTrash from '~icons/tabler/trash'
+import { useMutation, useQuery } from '@urql/vue';
+import { ElButton, ElButtonGroup, ElIcon, ElMessage, ElMessageBox, ElTooltip, TableV2FixedDir } from 'element-plus';
+import { computed, h, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import VirtualTable from '@/components/VirtualTable.vue';
+import { useFormValidation } from '@/composables/useFormValidation';
+import { graphql } from '@/graphql/graphql';
+import { CreateSubscriptionTemplateSchema } from '@/schemas';
+import IconEdit from '~icons/tabler/edit';
+import IconPlus from '~icons/tabler/plus';
+import IconTrash from '~icons/tabler/trash';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 const SubscriptionTemplatesQuery = graphql(`
 	query SubscriptionTemplates {
@@ -35,7 +35,7 @@ const SubscriptionTemplatesQuery = graphql(`
 			totalCount
 		}
 	}
-`)
+`);
 
 const CreateSubscriptionTemplateMutation = graphql(`
 	mutation CreateSubscriptionTemplate($input: CreateSubscriptionTemplateInput!) {
@@ -44,7 +44,7 @@ const CreateSubscriptionTemplateMutation = graphql(`
 			name
 		}
 	}
-`)
+`);
 
 const UpdateSubscriptionTemplateMutation = graphql(`
 	mutation UpdateSubscriptionTemplate($id: ID!, $input: UpdateSubscriptionTemplateInput!) {
@@ -53,28 +53,28 @@ const UpdateSubscriptionTemplateMutation = graphql(`
 			name
 		}
 	}
-`)
+`);
 
 const DeleteSubscriptionTemplateMutation = graphql(`
 	mutation DeleteSubscriptionTemplate($id: ID!) {
 		deleteSubscriptionTemplate(id: $id)
 	}
-`)
+`);
 
-const { data, fetching, executeQuery } = useQuery({ query: SubscriptionTemplatesQuery })
-const createMutation = useMutation(CreateSubscriptionTemplateMutation)
-const updateMutation = useMutation(UpdateSubscriptionTemplateMutation)
-const deleteMutation = useMutation(DeleteSubscriptionTemplateMutation)
+const { data, fetching, executeQuery } = useQuery({ query: SubscriptionTemplatesQuery });
+const createMutation = useMutation(CreateSubscriptionTemplateMutation);
+const updateMutation = useMutation(UpdateSubscriptionTemplateMutation);
+const deleteMutation = useMutation(DeleteSubscriptionTemplateMutation);
 
-type Template = NonNullable<typeof data.value>['subscriptionTemplates']['edges'][0]['node']
+type Template = NonNullable<typeof data.value>['subscriptionTemplates']['edges'][0]['node'];
 
-const templates = computed(() => data.value?.subscriptionTemplates?.edges.map((e) => e.node) ?? [])
-const totalCount = computed(() => data.value?.subscriptionTemplates?.totalCount ?? 0)
+const templates = computed(() => data.value?.subscriptionTemplates?.edges.map((e) => e.node) ?? []);
+const totalCount = computed(() => data.value?.subscriptionTemplates?.totalCount ?? 0);
 
-const dialogVisible = ref(false)
-const dialogMode = ref<'create' | 'edit'>('create')
-const editingTemplateId = ref<string | null>(null)
-const formLoading = ref(false)
+const dialogVisible = ref(false);
+const dialogMode = ref<'create' | 'edit'>('create');
+const editingTemplateId = ref<string | null>(null);
+const formLoading = ref(false);
 
 const form = ref({
 	name: '',
@@ -85,9 +85,9 @@ const form = ref({
 	announceUrl: '',
 	routing: '',
 	trafficTotal: '0',
-})
+});
 
-const { errors, validate, clearErrors } = useFormValidation(CreateSubscriptionTemplateSchema, form)
+const { errors, validate, clearErrors } = useFormValidation(CreateSubscriptionTemplateSchema, form);
 
 const resetForm = () => {
 	form.value = {
@@ -99,20 +99,20 @@ const resetForm = () => {
 		announceUrl: '',
 		routing: '',
 		trafficTotal: '0',
-	}
-	editingTemplateId.value = null
-	clearErrors()
-}
+	};
+	editingTemplateId.value = null;
+	clearErrors();
+};
 
 const openCreateDialog = () => {
-	dialogMode.value = 'create'
-	resetForm()
-	dialogVisible.value = true
-}
+	dialogMode.value = 'create';
+	resetForm();
+	dialogVisible.value = true;
+};
 
 const openEditDialog = (template: Template) => {
-	dialogMode.value = 'edit'
-	editingTemplateId.value = template.id
+	dialogMode.value = 'edit';
+	editingTemplateId.value = template.id;
 	form.value = {
 		name: template.name,
 		profileTitle: template.profileTitle ?? '',
@@ -122,14 +122,14 @@ const openEditDialog = (template: Template) => {
 		announceUrl: template.announceUrl ?? '',
 		routing: template.routing ?? '',
 		trafficTotal: template.trafficTotal,
-	}
-	dialogVisible.value = true
-}
+	};
+	dialogVisible.value = true;
+};
 
 const handleSubmit = async () => {
-	if (!validate()) return
+	if (!validate()) return;
 
-	formLoading.value = true
+	formLoading.value = true;
 	try {
 		if (dialogMode.value === 'create') {
 			const result = await createMutation.executeMutation({
@@ -143,18 +143,18 @@ const handleSubmit = async () => {
 					routing: form.value.routing || null,
 					trafficTotal: form.value.trafficTotal,
 				},
-			})
+			});
 			if (result.error) {
-				ElMessage.error(result.error.message)
-				return
+				ElMessage.error(result.error.message);
+				return;
 			}
-			ElMessage.success(t('subscriptionTemplates.createSuccess'))
-			dialogVisible.value = false
-			executeQuery({ requestPolicy: 'network-only' })
-			return
+			ElMessage.success(t('subscriptionTemplates.createSuccess'));
+			dialogVisible.value = false;
+			executeQuery({ requestPolicy: 'network-only' });
+			return;
 		}
 
-		if (!editingTemplateId.value) return
+		if (!editingTemplateId.value) return;
 
 		const result = await updateMutation.executeMutation({
 			id: editingTemplateId.value,
@@ -168,18 +168,18 @@ const handleSubmit = async () => {
 				routing: form.value.routing || null,
 				trafficTotal: form.value.trafficTotal,
 			},
-		})
+		});
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('subscriptionTemplates.updateSuccess'))
-		dialogVisible.value = false
-		executeQuery({ requestPolicy: 'network-only' })
+		ElMessage.success(t('subscriptionTemplates.updateSuccess'));
+		dialogVisible.value = false;
+		executeQuery({ requestPolicy: 'network-only' });
 	} finally {
-		formLoading.value = false
+		formLoading.value = false;
 	}
-}
+};
 
 const handleDelete = async (template: Template) => {
 	try {
@@ -187,38 +187,38 @@ const handleDelete = async (template: Template) => {
 			confirmButtonText: t('common.confirm'),
 			cancelButtonText: t('common.cancel'),
 			type: 'warning',
-		})
-		const result = await deleteMutation.executeMutation({ id: template.id })
+		});
+		const result = await deleteMutation.executeMutation({ id: template.id });
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('subscriptionTemplates.deleteSuccess'))
-		executeQuery({ requestPolicy: 'network-only' })
+		ElMessage.success(t('subscriptionTemplates.deleteSuccess'));
+		executeQuery({ requestPolicy: 'network-only' });
 	} catch {
 		// cancelled
 	}
-}
+};
 
-const trafficInGB = ref(0)
+const trafficInGB = ref(0);
 watch(
 	() => form.value.trafficTotal,
 	(val) => {
-		trafficInGB.value = Number(val) / (1024 * 1024 * 1024)
+		trafficInGB.value = Number(val) / (1024 * 1024 * 1024);
 	},
 	{ immediate: true },
-)
+);
 
 const updateTrafficFromGB = (gb: number) => {
-	form.value.trafficTotal = String(Math.floor(gb * 1024 * 1024 * 1024))
-}
+	form.value.trafficTotal = String(Math.floor(gb * 1024 * 1024 * 1024));
+};
 
 const formatTraffic = (bytes: string) => {
-	const num = Number(bytes)
-	if (num === 0) return '∞'
-	const gb = num / (1024 * 1024 * 1024)
-	return `${gb.toFixed(1)} GB`
-}
+	const num = Number(bytes);
+	if (num === 0) return '∞';
+	const gb = num / (1024 * 1024 * 1024);
+	return `${gb.toFixed(1)} GB`;
+};
 
 const columns = computed(() => [
 	{
@@ -285,7 +285,7 @@ const columns = computed(() => [
 				),
 			]),
 	},
-])
+]);
 </script>
 
 <template>

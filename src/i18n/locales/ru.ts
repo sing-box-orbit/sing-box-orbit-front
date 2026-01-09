@@ -132,4 +132,4 @@ export default {
 		routingHint: 'Пользовательские правила маршрутизации в формате base64',
 		clientsCount: 'клиентов',
 	},
-}
+};

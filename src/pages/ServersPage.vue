@@ -1,19 +1,28 @@
 <script setup lang="ts">
-import { useMutation, useQuery } from '@urql/vue'
-import { ElButton, ElButtonGroup, ElIcon, ElMessage, ElMessageBox, ElTag, ElTooltip, TableV2FixedDir } from 'element-plus'
-import { computed, h, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import VirtualTable from '@/components/VirtualTable.vue'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { graphql } from '@/graphql/graphql'
-import { CreateServerSchema, UpdateServerSchema } from '@/schemas'
-import IconCloud from '~icons/tabler/cloud'
-import IconEdit from '~icons/tabler/edit'
-import IconPlus from '~icons/tabler/plus'
-import IconRefresh from '~icons/tabler/refresh'
-import IconTrash from '~icons/tabler/trash'
+import { useMutation, useQuery } from '@urql/vue';
+import {
+	ElButton,
+	ElButtonGroup,
+	ElIcon,
+	ElMessage,
+	ElMessageBox,
+	ElTag,
+	ElTooltip,
+	TableV2FixedDir,
+} from 'element-plus';
+import { computed, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import VirtualTable from '@/components/VirtualTable.vue';
+import { useFormValidation } from '@/composables/useFormValidation';
+import { graphql } from '@/graphql/graphql';
+import { CreateServerSchema, UpdateServerSchema } from '@/schemas';
+import IconCloud from '~icons/tabler/cloud';
+import IconEdit from '~icons/tabler/edit';
+import IconPlus from '~icons/tabler/plus';
+import IconRefresh from '~icons/tabler/refresh';
+import IconTrash from '~icons/tabler/trash';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 const ServersQuery = graphql(`
 	query Servers {
@@ -39,7 +48,7 @@ const ServersQuery = graphql(`
 			totalCount
 		}
 	}
-`)
+`);
 
 const CreateServerMutation = graphql(`
 	mutation CreateServer($input: CreateServerInput!) {
@@ -48,7 +57,7 @@ const CreateServerMutation = graphql(`
 			name
 		}
 	}
-`)
+`);
 
 const UpdateServerMutation = graphql(`
 	mutation UpdateServer($id: ID!, $input: UpdateServerInput!) {
@@ -57,13 +66,13 @@ const UpdateServerMutation = graphql(`
 			name
 		}
 	}
-`)
+`);
 
 const DeleteServerMutation = graphql(`
 	mutation DeleteServer($id: ID!) {
 		deleteServer(id: $id)
 	}
-`)
+`);
 
 const SyncServerMutation = graphql(`
 	mutation SyncServer($id: ID!) {
@@ -73,62 +82,62 @@ const SyncServerMutation = graphql(`
 			lastSyncAt
 		}
 	}
-`)
+`);
 
-const { data, fetching, executeQuery } = useQuery({ query: ServersQuery })
-const createServerMutation = useMutation(CreateServerMutation)
-const updateServerMutation = useMutation(UpdateServerMutation)
-const deleteServerMutation = useMutation(DeleteServerMutation)
-const syncServerMutation = useMutation(SyncServerMutation)
+const { data, fetching, executeQuery } = useQuery({ query: ServersQuery });
+const createServerMutation = useMutation(CreateServerMutation);
+const updateServerMutation = useMutation(UpdateServerMutation);
+const deleteServerMutation = useMutation(DeleteServerMutation);
+const syncServerMutation = useMutation(SyncServerMutation);
 
-type Server = NonNullable<typeof data.value>['servers']['edges'][0]['node']
+type Server = NonNullable<typeof data.value>['servers']['edges'][0]['node'];
 
-const servers = computed(() => data.value?.servers?.edges.map((e) => e.node) ?? [])
-const totalCount = computed(() => data.value?.servers?.totalCount ?? 0)
+const servers = computed(() => data.value?.servers?.edges.map((e) => e.node) ?? []);
+const totalCount = computed(() => data.value?.servers?.totalCount ?? 0);
 
-const dialogVisible = ref(false)
-const dialogMode = ref<'create' | 'edit'>('create')
-const editingServerId = ref<string | null>(null)
-const formLoading = ref(false)
+const dialogVisible = ref(false);
+const dialogMode = ref<'create' | 'edit'>('create');
+const editingServerId = ref<string | null>(null);
+const formLoading = ref(false);
 
 const form = ref({
 	name: '',
 	url: '',
 	apiToken: '',
 	location: '',
-})
+});
 
-const currentSchema = computed(() => (dialogMode.value === 'create' ? CreateServerSchema : UpdateServerSchema))
-const { errors, validate, clearErrors } = useFormValidation(currentSchema, form)
+const currentSchema = computed(() => (dialogMode.value === 'create' ? CreateServerSchema : UpdateServerSchema));
+const { errors, validate, clearErrors } = useFormValidation(currentSchema, form);
 
 const resetForm = () => {
-	form.value = { name: '', url: '', apiToken: '', location: '' }
-	editingServerId.value = null
-	clearErrors()
-}
+	form.value = { name: '', url: '', apiToken: '', location: '' };
+	editingServerId.value = null;
+	clearErrors();
+};
 
 const openCreateDialog = () => {
-	dialogMode.value = 'create'
-	resetForm()
-	dialogVisible.value = true
-}
+	dialogMode.value = 'create';
+	resetForm();
+	dialogVisible.value = true;
+};
 
 const openEditDialog = (server: Server) => {
-	dialogMode.value = 'edit'
-	editingServerId.value = server.id
+	dialogMode.value = 'edit';
+	editingServerId.value = server.id;
 	form.value = {
 		name: server.name,
 		url: server.url,
 		apiToken: '',
 		location: server.location ?? '',
-	}
-	dialogVisible.value = true
-}
+	};
+	dialogVisible.value = true;
+};
 
 const handleSubmit = async () => {
-	if (!validate()) return
+	if (!validate()) return;
 
-	formLoading.value = true
+	formLoading.value = true;
 	try {
 		if (dialogMode.value === 'create') {
 			const result = await createServerMutation.executeMutation({
@@ -138,40 +147,40 @@ const handleSubmit = async () => {
 					apiToken: form.value.apiToken,
 					location: form.value.location || null,
 				},
-			})
+			});
 			if (result.error) {
-				ElMessage.error(result.error.message)
-				return
+				ElMessage.error(result.error.message);
+				return;
 			}
-			ElMessage.success(t('servers.createSuccess'))
-			dialogVisible.value = false
-			executeQuery({ requestPolicy: 'network-only' })
-			return
+			ElMessage.success(t('servers.createSuccess'));
+			dialogVisible.value = false;
+			executeQuery({ requestPolicy: 'network-only' });
+			return;
 		}
 
-		if (!editingServerId.value) return
+		if (!editingServerId.value) return;
 
-		const input: Record<string, string | null> = {}
-		if (form.value.name) input.name = form.value.name
-		if (form.value.url) input.url = form.value.url
-		if (form.value.apiToken) input.apiToken = form.value.apiToken
-		input.location = form.value.location || null
+		const input: Record<string, string | null> = {};
+		if (form.value.name) input.name = form.value.name;
+		if (form.value.url) input.url = form.value.url;
+		if (form.value.apiToken) input.apiToken = form.value.apiToken;
+		input.location = form.value.location || null;
 
 		const result = await updateServerMutation.executeMutation({
 			id: editingServerId.value,
 			input,
-		})
+		});
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('servers.updateSuccess'))
-		dialogVisible.value = false
-		executeQuery({ requestPolicy: 'network-only' })
+		ElMessage.success(t('servers.updateSuccess'));
+		dialogVisible.value = false;
+		executeQuery({ requestPolicy: 'network-only' });
 	} finally {
-		formLoading.value = false
+		formLoading.value = false;
 	}
-}
+};
 
 const handleDelete = async (server: Server) => {
 	try {
@@ -179,48 +188,48 @@ const handleDelete = async (server: Server) => {
 			confirmButtonText: t('common.confirm'),
 			cancelButtonText: t('common.cancel'),
 			type: 'warning',
-		})
-		const result = await deleteServerMutation.executeMutation({ id: server.id })
+		});
+		const result = await deleteServerMutation.executeMutation({ id: server.id });
 		if (result.error) {
-			ElMessage.error(result.error.message)
-			return
+			ElMessage.error(result.error.message);
+			return;
 		}
-		ElMessage.success(t('servers.deleteSuccess'))
-		executeQuery({ requestPolicy: 'network-only' })
+		ElMessage.success(t('servers.deleteSuccess'));
+		executeQuery({ requestPolicy: 'network-only' });
 	} catch {
 		// cancelled
 	}
-}
+};
 
 const handleSync = async (server: Server) => {
-	const result = await syncServerMutation.executeMutation({ id: server.id })
+	const result = await syncServerMutation.executeMutation({ id: server.id });
 	if (result.error) {
-		ElMessage.error(result.error.message)
-		return
+		ElMessage.error(result.error.message);
+		return;
 	}
-	ElMessage.success(t('servers.syncSuccess'))
-	executeQuery({ requestPolicy: 'network-only' })
-}
+	ElMessage.success(t('servers.syncSuccess'));
+	executeQuery({ requestPolicy: 'network-only' });
+};
 
 const getStatusType = (status: string) => {
 	switch (status) {
 		case 'ONLINE':
-			return 'success'
+			return 'success';
 		case 'OFFLINE':
-			return 'danger'
+			return 'danger';
 		case 'SYNCING':
-			return 'warning'
+			return 'warning';
 		case 'ERROR':
-			return 'danger'
+			return 'danger';
 		default:
-			return 'info'
+			return 'info';
 	}
-}
+};
 
 const formatDate = (dateString: string | null) => {
-	if (!dateString) return '-'
-	return new Date(dateString).toLocaleString()
-}
+	if (!dateString) return '-';
+	return new Date(dateString).toLocaleString();
+};
 
 const columns = computed(() => [
 	{
@@ -304,7 +313,7 @@ const columns = computed(() => [
 				),
 			]),
 	},
-])
+]);
 </script>
 
 <template>

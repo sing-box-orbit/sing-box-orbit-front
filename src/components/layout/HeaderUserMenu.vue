@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { authClient, signOut } from '@/libs/auth'
-import IconLogout from '~icons/tabler/logout'
-import IconSettings from '~icons/tabler/settings'
-import IconUser from '~icons/tabler/user'
+import { useI18n } from 'vue-i18n';
+import { authClient, signOut } from '@/libs/auth';
+import IconLogout from '~icons/tabler/logout';
+import IconSettings from '~icons/tabler/settings';
+import IconUser from '~icons/tabler/user';
 
-const { t } = useI18n()
-const session = authClient.useSession()
+const { t } = useI18n();
+const session = authClient.useSession();
 
 const handleSignOut = async () => {
-	await signOut()
-}
+	await signOut();
+};
 </script>
 
 <template>

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import IconLanguage from '~icons/tabler/language'
+import { useI18n } from 'vue-i18n';
+import IconLanguage from '~icons/tabler/language';
 
-const { locale } = useI18n()
+const { locale } = useI18n();
 
 const languages = [
 	{ code: 'en', name: 'English' },
 	{ code: 'ru', name: 'Русский' },
-]
+];
 
 const setLanguage = (code: string) => {
-	locale.value = code
-	localStorage.setItem('locale', code)
-}
+	locale.value = code;
+	localStorage.setItem('locale', code);
+};
 </script>
 
 <template>

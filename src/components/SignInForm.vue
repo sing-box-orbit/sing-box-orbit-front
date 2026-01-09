@@ -1,70 +1,70 @@
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useFormValidation } from '@/composables/useFormValidation'
-import { signIn } from '@/libs/auth'
-import { SignInSchema } from '@/schemas'
-import IconLanguage from '~icons/tabler/language'
+import { ElMessage } from 'element-plus';
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useFormValidation } from '@/composables/useFormValidation';
+import { signIn } from '@/libs/auth';
+import { SignInSchema } from '@/schemas';
+import IconLanguage from '~icons/tabler/language';
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n();
 
 const languages = [
 	{ code: 'en', name: 'English' },
 	{ code: 'ru', name: 'Русский' },
-]
+];
 
 const setLanguage = (code: string) => {
-	locale.value = code
-	localStorage.setItem('locale', code)
-}
+	locale.value = code;
+	localStorage.setItem('locale', code);
+};
 
-const loading = ref(false)
+const loading = ref(false);
 
 const form = ref({
 	emailOrUsername: '',
 	password: '',
-})
+});
 
-const { errors, validate } = useFormValidation(SignInSchema, form)
+const { errors, validate } = useFormValidation(SignInSchema, form);
 
-const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 const handleSubmit = async () => {
-	if (!validate()) return
+	if (!validate()) return;
 
-	loading.value = true
+	loading.value = true;
 
 	try {
-		const input = form.value.emailOrUsername.trim()
+		const input = form.value.emailOrUsername.trim();
 
 		if (isEmail(input)) {
 			const { error } = await signIn.email({
 				email: input,
 				password: form.value.password,
-			})
+			});
 
 			if (error) {
-				ElMessage.error(error.message || t('auth.signInError'))
-				return
+				ElMessage.error(error.message || t('auth.signInError'));
+				return;
 			}
 		} else {
 			const { error } = await signIn.username({
 				username: input,
 				password: form.value.password,
-			})
+			});
 
 			if (error) {
-				ElMessage.error(error.message || t('auth.signInError'))
-				return
+				ElMessage.error(error.message || t('auth.signInError'));
+				return;
 			}
 		}
 
-		ElMessage.success(t('auth.signInSuccess'))
+		ElMessage.success(t('auth.signInSuccess'));
 	} finally {
-		loading.value = false
+		loading.value = false;
 	}
-}
+};
 </script>
 
 <template>

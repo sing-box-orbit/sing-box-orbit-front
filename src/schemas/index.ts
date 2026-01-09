@@ -1,11 +1,11 @@
-import { type Static, Type } from 'typebox'
+import { type Static, Type } from 'typebox';
 
 // Sign In Form Schema
 export const SignInSchema = Type.Object({
 	emailOrUsername: Type.String({ minLength: 1, error: 'validation.required' }),
 	password: Type.String({ minLength: 1, error: 'validation.required' }),
-})
-export type SignInForm = Static<typeof SignInSchema>
+});
+export type SignInForm = Static<typeof SignInSchema>;
 
 // Server Form Schema
 export const CreateServerSchema = Type.Object({
@@ -17,8 +17,8 @@ export const CreateServerSchema = Type.Object({
 	}),
 	apiToken: Type.String({ minLength: 1, error: 'validation.required' }),
 	location: Type.Optional(Type.String()),
-})
-export type CreateServerForm = Static<typeof CreateServerSchema>
+});
+export type CreateServerForm = Static<typeof CreateServerSchema>;
 
 export const UpdateServerSchema = Type.Object({
 	name: Type.String({ minLength: 1, error: 'validation.required' }),
@@ -29,8 +29,8 @@ export const UpdateServerSchema = Type.Object({
 	}),
 	apiToken: Type.Optional(Type.String()),
 	location: Type.Optional(Type.String()),
-})
-export type UpdateServerForm = Static<typeof UpdateServerSchema>
+});
+export type UpdateServerForm = Static<typeof UpdateServerSchema>;
 
 // Client Form Schema
 export const CreateClientSchema = Type.Object({
@@ -48,8 +48,8 @@ export const CreateClientSchema = Type.Object({
 	expiresAt: Type.Optional(Type.String()),
 	serverIds: Type.Array(Type.String()),
 	subscriptionTemplateId: Type.Optional(Type.Union([Type.String(), Type.Null()])),
-})
-export type CreateClientForm = Static<typeof CreateClientSchema>
+});
+export type CreateClientForm = Static<typeof CreateClientSchema>;
 
 export const UpdateClientSchema = Type.Object({
 	username: Type.String({
@@ -65,8 +65,8 @@ export const UpdateClientSchema = Type.Object({
 	),
 	expiresAt: Type.Optional(Type.String()),
 	subscriptionTemplateId: Type.Optional(Type.Union([Type.String(), Type.Null()])),
-})
-export type UpdateClientForm = Static<typeof UpdateClientSchema>
+});
+export type UpdateClientForm = Static<typeof UpdateClientSchema>;
 
 // Subscription Template Form Schema
 export const CreateSubscriptionTemplateSchema = Type.Object({
@@ -83,8 +83,8 @@ export const CreateSubscriptionTemplateSchema = Type.Object({
 	),
 	routing: Type.Optional(Type.String()),
 	trafficTotal: Type.String(),
-})
-export type CreateSubscriptionTemplateForm = Static<typeof CreateSubscriptionTemplateSchema>
+});
+export type CreateSubscriptionTemplateForm = Static<typeof CreateSubscriptionTemplateSchema>;
 
-export const UpdateSubscriptionTemplateSchema = CreateSubscriptionTemplateSchema
-export type UpdateSubscriptionTemplateForm = CreateSubscriptionTemplateForm
+export const UpdateSubscriptionTemplateSchema = CreateSubscriptionTemplateSchema;
+export type UpdateSubscriptionTemplateForm = CreateSubscriptionTemplateForm;
